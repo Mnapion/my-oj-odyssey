@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <limits.h>
+#define Size 101
+
+typedef int iter;
+int farms[Size][Size];
+struct Vertex {
+	int key;
+	int piNumber;
+	bool isValid;
+};
+typedef struct Vertex Vertex;
+Vertex vertices[Size];
+int extractMin(int size) 
+{
+	int isNull = true;
+	int tempMin = INT_MAX;
+	int tempMinIndex = -1;
+	for (int i = 0; i < size; i++) {
+		if (!vertices[i].isValid)
+			continue;
+		else {
+//			printf("Here.\n");
+			isNull = false;
+			if (tempMin > vertices[i].key) {
+				tempMinIndex = i;
+				tempMin = vertices[i].key;
+			}
+		}
+	}
+//	printf("TempMinIndex:%d\n", tempMinIndex);
+	if (!isNull) {
+		vertices[tempMinIndex].isValid=false;
+	}
+	return tempMinIndex;
+}
+bool isBeLong(int size,int checkNumber)
+{
+	return vertices[checkNumber].isValid && size > checkNumber;
+}
+int main()
+{
+	iter i, j, k;
+	int size,temp;
+	while (scanf("%d", &size) != EOF) {
+		for (i = 0; i < size; i++)
+			for (j = 0; j < size; j++)
+				scanf("%d", &farms[i][j]);
+/*		for (i = 0; i < size; i++) {
+			for (j = 0; j < size; j++) {
+				printf("%d", farms[i][j]);
+				j == size - 1 ? printf("\n") : printf("\t");
+			}
+		}*/
+		
+		for (i = 0; i < size; i++) {
+			vertices[i].piNumber = -1;
+			vertices[i].key =1000000;
+			vertices[i].isValid = true;
+		}
+		temp = extractMin(size);
+		while (temp >= 0) {
+//			printf("Temp:%d\n", temp);
+			for (i = 0; i < size; i++) {
+				if (i != temp) {
+					if (farms[temp][i] < vertices[i].key&&isBeLong(size, i)) {
+						vertices[i].piNumber = temp;
+						vertices[i].key = farms[temp][i];
+					}
+				}
+			}
+			temp = extractMin(size);
+		}
+		int value = 0;
+		for (int i = 0; i < size; i++)
+			value += farms[i][vertices[i].piNumber];
+		printf("%d\n", value);
+	}
+	return 0;
+}
