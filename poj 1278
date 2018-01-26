@@ -1,0 +1,119 @@
+//for poj 1278
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Edge {
+	int from;
+	int to;
+	int weight;
+	bool operator < (const Edge& ele) {
+		return this->weight < ele.weight;
+	}
+};
+typedef struct Edge Edge;
+
+class KruskalGraph
+{
+public:
+	void init(int n)
+	{
+		this->edges.clear();
+		this->vertices.clear();
+		for (int i = 0; i < n; i++)
+			this->vertices.push_back(-1);
+		this->treeEdges.clear();
+		this->order = n;
+	}
+	void Inserto(int u, int v, int w)
+	{
+		Edge tempEdge;
+		tempEdge.from = u;
+		tempEdge.to = v;
+		tempEdge.weight = w;
+		this->edges.push_back(tempEdge);
+	}
+	void Kruskal()
+	{
+		sort(edges.begin(), edges.end());
+		int count = 0;
+		for (int i = 0; i < edges.size()&&count<order; i++) {
+			int root1, root2;
+			root1 = Find(edges[i].to);
+			root2 = Find(edges[i].from);
+			if (root1 != root2) {
+				this->treeEdges.push_back(edges[i]);
+				Union(root1, root2);
+				count++;
+			}
+		}
+	}
+	void showMST()
+	{
+		for (int i = 0; i < treeEdges.size(); i++) {
+			printf("(%d,%d,%d) ", treeEdges[i].from, treeEdges[i].to, treeEdges[i].weight);
+		}
+		printf("\n");
+	}
+	int mstValu()
+	{
+		int ret = 0;
+		for (int i = 0; i < treeEdges.size(); i++)
+			ret += treeEdges[i].weight;
+		return ret;
+	}
+private:
+	vector<Edge > edges;
+	vector<Edge > treeEdges;
+	vector<int > vertices;
+	int order;
+	void Union(int x, int y)
+	{
+		int root1, root2;
+		root1 = Find(x);
+		root2 = Find(y);
+		//printf("Roots:%d %d\n", root1, root2);
+		_union(root1, root2);
+	}
+	int Find(int x)
+	{
+		if (vertices[x] < 0)
+			return x;
+		else
+			return vertices[x] = Find(vertices[x]);
+	}
+	void _union(int x, int y)
+	{
+		if (vertices[y] < vertices[x]) {
+			vertices[x] = y;
+		}
+		else {
+			if (vertices[x] == vertices[y])
+				vertices[x]--;
+			vertices[y] = x;
+		}
+	}
+};
+int main()
+{
+	int n;
+	KruskalGraph graph;
+	while (scanf("%d", &n) != EOF) {
+		graph.init(n);
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				int weight;
+				scanf("%d", &weight);
+				if (i > j)
+					graph.Inserto(i, j, weight);
+			}
+		}
+		graph.Kruskal();
+		//graph.showMST();
+		printf("%d\n", graph.mstValu());
+	}
+	return 0;
+}
